@@ -1,0 +1,513 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY PIANO</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #252535;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    font-size: 32px;
+    margin: 25px 0 15px;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 850px;
+    margin: 15px auto;
+    padding: 0 20px;
+}
+
+#info {
+    font-size: 14px;
+}
+
+button {
+    background: #444455;
+    color: #ff6666;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:hover {
+    background: #666677;
+}
+
+.metro {
+    margin: 20px;
+}
+
+.metro input {
+    width: 65px;
+    padding: 8px;
+    text-align: center;
+    font-size: 15px;
+    border-radius: 5px;
+    border: none;
+}
+
+#metroBtn {
+    margin-left: 10px;
+}
+
+.keyboard {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 675px;
+    height: 210px;
+    margin: 30px auto;
+}
+
+.white-key {
+    position: relative;
+    width: 75px;
+    height: 200px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 0 0 5px 5px;
+    color: black;
+    cursor: pointer;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.white-key .key-label {
+    margin-top: 25px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.white-key .note-label {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    font-weight: bold;
+}
+
+.black-key {
+    position: absolute;
+    top: 0;
+    width: 46px;
+    height: 120px;
+    background: black;
+    border: 1px solid black;
+    border-radius: 0 0 4px 4px;
+    color: white;
+    z-index: 2;
+    cursor: pointer;
+    user-select: none;
+}
+
+.black-key .key-label {
+    margin-top: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.black-key .note-label {
+    position: absolute;
+    bottom: 25px;
+    width: 100%;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.white-key.active {
+    background: #ffee66;
+}
+
+.black-key.active {
+    background: #555555;
+}
+
+@media (max-width: 720px) {
+    .keyboard {
+        transform: scale(0.85);
+        transform-origin: top center;
+    }
+
+    .top {
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h1>MY PIANO</h1>
+
+<div class="top">
+    <div id="info">キーボードを押して演奏しよう！</div>
+
+    <button id="instBtn" onclick="toggleInstrument()">
+        音色: ピアノ
+    </button>
+</div>
+
+<div class="metro">
+    BPM:
+    <input type="number" id="tempo" value="120" min="1">
+    <button id="metroBtn" onclick="toggleMetronome()">
+        メトロノーム: 停止
+    </button>
+</div>
+
+<div class="keyboard" id="keyboard">
+
+    <!-- 白鍵 -->
+    <div class="white-key" data-key="a">
+        <div class="key-label">A</div>
+        <div class="note-label">シ</div>
+    </div>
+
+    <div class="white-key" data-key="s">
+        <div class="key-label">S</div>
+        <div class="note-label">ド</div>
+    </div>
+
+    <div class="white-key" data-key="d">
+        <div class="key-label">D</div>
+        <div class="note-label">レ</div>
+    </div>
+
+    <div class="white-key" data-key="f">
+        <div class="key-label">F</div>
+        <div class="note-label">ミ</div>
+    </div>
+
+    <div class="white-key" data-key="g">
+        <div class="key-label">G</div>
+        <div class="note-label">ファ</div>
+    </div>
+
+    <div class="white-key" data-key="h">
+        <div class="key-label">H</div>
+        <div class="note-label">ソ</div>
+    </div>
+
+    <div class="white-key" data-key="j">
+        <div class="key-label">J</div>
+        <div class="note-label">ラ</div>
+    </div>
+
+    <div class="white-key" data-key="k">
+        <div class="key-label">K</div>
+        <div class="note-label">シ</div>
+    </div>
+
+    <div class="white-key" data-key="l">
+        <div class="key-label">L</div>
+        <div class="note-label">ド</div>
+    </div>
+
+    <!-- 黒鍵 -->
+    <div class="black-key" data-key="q" style="left: 52px;">
+        <div class="key-label">Q</div>
+        <div class="note-label">ラ#</div>
+    </div>
+
+    <div class="black-key" data-key="e" style="left: 127px;">
+        <div class="key-label">E</div>
+        <div class="note-label">ド#</div>
+    </div>
+
+    <div class="black-key" data-key="r" style="left: 202px;">
+        <div class="key-label">R</div>
+        <div class="note-label">レ#</div>
+    </div>
+
+    <div class="black-key" data-key="y" style="left: 352px;">
+        <div class="key-label">Y</div>
+        <div class="note-label">ファ#</div>
+    </div>
+
+    <div class="black-key" data-key="u" style="left: 427px;">
+        <div class="key-label">U</div>
+        <div class="note-label">ソ#</div>
+    </div>
+
+    <div class="black-key" data-key="i" style="left: 502px;">
+        <div class="key-label">I</div>
+        <div class="note-label">ラ#</div>
+    </div>
+
+    <div class="black-key" data-key="p" style="left: 652px;">
+        <div class="key-label">P</div>
+        <div class="note-label">ド#</div>
+    </div>
+
+</div>
+
+<script>
+
+// 音階と周波数
+const notes = {
+    a: ["シ", 493.88],
+    q: ["ラ#", 466.16],
+    s: ["ド", 523.25],
+    e: ["ド#", 554.37],
+    d: ["レ", 587.33],
+    r: ["レ#", 622.25],
+    f: ["ミ", 659.26],
+    g: ["ファ", 698.46],
+    y: ["ファ#", 739.98],
+    h: ["ソ", 784.00],
+    u: ["ソ#", 830.60],
+    j: ["ラ", 880.00],
+    i: ["ラ#", 932.32],
+    k: ["シ", 987.76],
+    l: ["ド", 1046.50],
+    p: ["ド#", 1108.74]
+};
+
+// 現在の楽器
+let currentInstrument = "piano";
+
+const instrumentNames = {
+    piano: "ピアノ",
+    xylophone: "木琴",
+    musicbox: "オルゴール"
+};
+
+// 音声エンジン
+const audioContext = new (
+    window.AudioContext || window.webkitAudioContext
+)();
+
+// 音を作って鳴らす
+function playSound(freq, instrument = currentInstrument) {
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    const now = audioContext.currentTime;
+    const master = audioContext.createGain();
+
+    master.connect(audioContext.destination);
+
+    master.gain.setValueAtTime(0.3, now);
+
+    let duration;
+    let envelope;
+
+    if (instrument === "metro") {
+        duration = 0.15;
+        envelope = 30;
+    } else if (instrument === "piano") {
+        duration = 0.5;
+        envelope = 5;
+    } else if (instrument === "xylophone") {
+        duration = 0.5;
+        envelope = 12;
+    } else {
+        duration = 0.5;
+        envelope = 6;
+    }
+
+    function addOscillator(frequency, volume) {
+
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = "sine";
+        osc.frequency.value = frequency;
+
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            now + duration
+        );
+
+        osc.connect(gain);
+        gain.connect(master);
+
+        osc.start(now);
+        osc.stop(now + duration);
+    }
+
+    if (instrument === "metro") {
+        addOscillator(1000, 0.3);
+    }
+
+    else if (instrument === "piano") {
+        addOscillator(freq, 0.2);
+        addOscillator(freq * 2, 0.06);
+        addOscillator(freq * 3, 0.02);
+    }
+
+    else if (instrument === "xylophone") {
+        addOscillator(freq, 0.2);
+        addOscillator(freq * 3.2, 0.1);
+    }
+
+    else {
+        addOscillator(freq, 0.2);
+        addOscillator(freq * 4, 0.08);
+        addOscillator(freq * 6, 0.04);
+    }
+
+}
+
+// 鍵盤を光らせる
+function flashKey(key) {
+
+    const element = document.querySelector(
+        `[data-key="${key}"]`
+    );
+
+    if (!element) return;
+
+    element.classList.add("active");
+
+    setTimeout(() => {
+        element.classList.remove("active");
+    }, 150);
+}
+
+// ピアノを演奏
+function pressKey(key) {
+
+    key = key.toLowerCase();
+
+    if (!notes[key]) return;
+
+    const [name, freq] = notes[key];
+
+    document.getElementById("info").textContent =
+        `[${instrumentNames[currentInstrument]}] ${name} / ${key.toUpperCase()}`;
+
+    playSound(freq);
+
+    flashKey(key);
+}
+
+// キーボード入力
+document.addEventListener("keydown", function(event) {
+
+    if (event.repeat) return;
+
+    const key = event.key.toLowerCase();
+
+    if (notes[key]) {
+        event.preventDefault();
+
+        if (document.activeElement.tagName === "INPUT") {
+            document.activeElement.blur();
+        }
+
+        pressKey(key);
+    }
+
+});
+
+// マウスクリック
+document.querySelectorAll(".white-key, .black-key")
+.forEach(element => {
+
+    element.addEventListener("click", function() {
+        const key = this.dataset.key;
+        pressKey(key);
+    });
+
+});
+
+// 音色切り替え
+function toggleInstrument() {
+
+    if (currentInstrument === "piano") {
+        currentInstrument = "xylophone";
+    }
+
+    else if (currentInstrument === "xylophone") {
+        currentInstrument = "musicbox";
+    }
+
+    else {
+        currentInstrument = "piano";
+    }
+
+    document.getElementById("instBtn").textContent =
+        "音色: " + instrumentNames[currentInstrument];
+
+}
+
+// メトロノーム
+let metronomeRunning = false;
+let metronomeTimer = null;
+
+function toggleMetronome() {
+
+    const btn = document.getElementById("metroBtn");
+
+    if (metronomeRunning) {
+
+        metronomeRunning = false;
+
+        clearTimeout(metronomeTimer);
+
+        btn.textContent = "メトロノーム: 停止";
+        btn.style.color = "#ff4444";
+
+    } else {
+
+        metronomeRunning = true;
+
+        btn.textContent = "メトロノーム: 再生中";
+        btn.style.color = "#44ff44";
+
+        metronomeLoop();
+    }
+
+}
+
+function metronomeLoop() {
+
+    if (!metronomeRunning) return;
+
+    let bpm = Number(
+        document.getElementById("tempo").value
+    );
+
+    if (!Number.isFinite(bpm) || bpm <= 0) {
+        bpm = 120;
+    }
+
+    playSound(0, "metro");
+
+    const interval = 60000 / bpm;
+
+    metronomeTimer = setTimeout(
+        metronomeLoop,
+        interval
+    );
+
+}
+
+</script>
+
+</body>
+</html>
