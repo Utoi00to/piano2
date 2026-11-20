@@ -218,44 +218,65 @@ button:hover { background: #666677; }
 
 
     <!-- 黒鍵 -->
-    <div class="black-key" data-code="KeyQ" style="left:52px">
+
+    <!-- 一番左のファ# -->
+    <div class="black-key" data-code="KeyQ" style="left:0px">
         <div class="key-label">Q</div>
         <div class="note-label">ファ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyW" style="left:127px">
+    <!-- ソ# -->
+    <div class="black-key" data-code="KeyW" style="left:52px">
         <div class="key-label">W</div>
         <div class="note-label">ソ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyE" style="left:202px">
+    <!-- ラ# -->
+    <div class="black-key" data-code="KeyE" style="left:127px">
         <div class="key-label">E</div>
         <div class="note-label">ラ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyT" style="left:352px">
+    <!-- ド#：ドとレの間 -->
+    <div class="black-key" data-code="KeyT" style="left:277px">
         <div class="key-label">T</div>
         <div class="note-label">ド#</div>
     </div>
 
-    <div class="black-key" data-code="KeyY" style="left:427px">
+    <!-- レ#：レとミの間 -->
+    <div class="black-key" data-code="KeyY" style="left:352px">
         <div class="key-label">Y</div>
         <div class="note-label">レ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyI" style="left:652px">
+    <!-- ファ#：ファとソの間 -->
+    <div class="black-key" data-code="KeyI" style="left:502px">
         <div class="key-label">I</div>
         <div class="note-label">ファ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyO" style="left:727px">
+    <!-- ソ# -->
+    <div class="black-key" data-code="KeyO" style="left:577px">
         <div class="key-label">O</div>
         <div class="note-label">ソ#</div>
     </div>
 
-    <div class="black-key" data-code="KeyP" style="left:802px">
+    <!-- ラ# -->
+    <div class="black-key" data-code="KeyP" style="left:652px">
         <div class="key-label">P</div>
         <div class="note-label">ラ#</div>
+    </div>
+
+    <!-- 右側のド# -->
+    <div class="black-key" data-code="BracketLeft" style="left:802px">
+        <div class="key-label">@</div>
+        <div class="note-label">ド#</div>
+    </div>
+
+    <!-- 一番右のレ# -->
+    <div class="black-key" data-code="BracketRight" style="left:877px">
+        <div class="key-label">「</div>
+        <div class="note-label">レ#</div>
     </div>
 
 </div>
@@ -265,6 +286,8 @@ button:hover { background: #666677; }
 
 // 音階と周波数
 const notes = {
+
+    // 白鍵
     KeyA: ["ソ", 196.00],
     KeyS: ["ラ", 220.00],
     KeyD: ["シ", 246.94],
@@ -279,14 +302,18 @@ const notes = {
     Backslash: ["レ", 587.33],
 
     // 黒鍵
-    KeyQ: ["ファ#", 369.99],
-    KeyW: ["ソ#", 415.30],
-    KeyE: ["ラ#", 466.16],
+    KeyQ: ["ファ#", 185.00],
+    KeyW: ["ソ#", 207.65],
+    KeyE: ["ラ#", 233.08],
     KeyT: ["ド#", 277.18],
     KeyY: ["レ#", 311.13],
     KeyI: ["ファ#", 369.99],
     KeyO: ["ソ#", 415.30],
-    KeyP: ["ラ#", 466.16]
+    KeyP: ["ラ#", 466.16],
+
+    // 右側の追加鍵盤
+    BracketLeft: ["ド#", 554.37],
+    BracketRight: ["レ#", 622.25]
 };
 
 
