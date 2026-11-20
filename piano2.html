@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,7 +7,9 @@
 <title>MY PIANO</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
@@ -30,7 +33,9 @@ h1 {
     padding: 0 20px;
 }
 
-#info { font-size: 14px; }
+#info {
+    font-size: 14px;
+}
 
 button {
     background: #444455;
@@ -43,9 +48,13 @@ button {
     font-size: 13px;
 }
 
-button:hover { background: #666677; }
+button:hover {
+    background: #666677;
+}
 
-.metro { margin: 20px; }
+.metro {
+    margin: 20px;
+}
 
 .metro input {
     width: 65px;
@@ -56,17 +65,27 @@ button:hover { background: #666677; }
     border: none;
 }
 
-#metroBtn { margin-left: 10px; }
+#metroBtn {
+    margin-left: 10px;
+}
+
+/* 鍵盤全体 */
+.keyboard-wrap {
+    width: 100%;
+    overflow-x: auto;
+    padding: 0 10px;
+}
 
 .keyboard {
     position: relative;
     display: flex;
-    justify-content: center;
-    width: 900px;
+    justify-content: flex-start;
+    width: 923px;
     height: 210px;
     margin: 30px auto;
 }
 
+/* 白鍵 */
 .white-key {
     position: relative;
     width: 75px;
@@ -93,6 +112,7 @@ button:hover { background: #666677; }
     font-weight: bold;
 }
 
+/* 黒鍵 */
 .black-key {
     position: absolute;
     top: 0;
@@ -121,14 +141,12 @@ button:hover { background: #666677; }
     font-weight: bold;
 }
 
-.white-key.active { background: #ffee66; }
-.black-key.active { background: #555555; }
+.white-key.active {
+    background: #ffee66;
+}
 
-@media (max-width: 950px) {
-    .keyboard {
-        transform: scale(0.8);
-        transform-origin: top center;
-    }
+.black-key.active {
+    background: #555555;
 }
 </style>
 </head>
@@ -148,14 +166,17 @@ button:hover { background: #666677; }
 <div class="metro">
     BPM:
     <input type="number" id="tempo" value="120" min="1">
+
     <button id="metroBtn" onclick="toggleMetronome()">
         メトロノーム: 停止
     </button>
 </div>
 
+<div class="keyboard-wrap">
 <div class="keyboard" id="keyboard">
 
     <!-- 白鍵 -->
+
     <div class="white-key" data-code="KeyA">
         <div class="key-label">A</div>
         <div class="note-label">ソ</div>
@@ -237,19 +258,19 @@ button:hover { background: #666677; }
         <div class="note-label">ラ#</div>
     </div>
 
-    <!-- ド#：ドとレの間 -->
+    <!-- ド# -->
     <div class="black-key" data-code="KeyT" style="left:277px">
         <div class="key-label">T</div>
         <div class="note-label">ド#</div>
     </div>
 
-    <!-- レ#：レとミの間 -->
+    <!-- レ# -->
     <div class="black-key" data-code="KeyY" style="left:352px">
         <div class="key-label">Y</div>
         <div class="note-label">レ#</div>
     </div>
 
-    <!-- ファ#：ファとソの間 -->
+    <!-- ファ# -->
     <div class="black-key" data-code="KeyI" style="left:502px">
         <div class="key-label">I</div>
         <div class="note-label">ファ#</div>
@@ -275,10 +296,11 @@ button:hover { background: #666677; }
 
     <!-- 一番右のレ# -->
     <div class="black-key" data-code="BracketRight" style="left:877px">
-        <div class="key-label">「</div>
+        <div class="key-label">[</div>
         <div class="note-label">レ#</div>
     </div>
 
+</div>
 </div>
 
 
@@ -310,8 +332,6 @@ const notes = {
     KeyI: ["ファ#", 369.99],
     KeyO: ["ソ#", 415.30],
     KeyP: ["ラ#", 466.16],
-
-    // 右側の追加鍵盤
     BracketLeft: ["ド#", 554.37],
     BracketRight: ["レ#", 622.25]
 };
@@ -349,7 +369,9 @@ function playSound(freq, instrument = currentInstrument) {
 
     let duration = 0.5;
 
-    if (instrument === "metro") duration = 0.15;
+    if (instrument === "metro") {
+        duration = 0.15;
+    }
 
     function addOscillator(frequency, volume) {
 
@@ -360,6 +382,7 @@ function playSound(freq, instrument = currentInstrument) {
         osc.frequency.value = frequency;
 
         gain.gain.setValueAtTime(volume, now);
+
         gain.gain.exponentialRampToValueAtTime(
             0.001,
             now + duration
@@ -373,21 +396,22 @@ function playSound(freq, instrument = currentInstrument) {
     }
 
     if (instrument === "metro") {
-        addOscillator(1000, 0.3);
-    }
 
-    else if (instrument === "piano") {
+        addOscillator(1000, 0.3);
+
+    } else if (instrument === "piano") {
+
         addOscillator(freq, 0.2);
         addOscillator(freq * 2, 0.06);
         addOscillator(freq * 3, 0.02);
-    }
 
-    else if (instrument === "xylophone") {
+    } else if (instrument === "xylophone") {
+
         addOscillator(freq, 0.2);
         addOscillator(freq * 3.2, 0.1);
-    }
 
-    else {
+    } else {
+
         addOscillator(freq, 0.2);
         addOscillator(freq * 4, 0.08);
         addOscillator(freq * 6, 0.04);
@@ -462,14 +486,15 @@ document.querySelectorAll(".white-key, .black-key")
 function toggleInstrument() {
 
     if (currentInstrument === "piano") {
+
         currentInstrument = "xylophone";
-    }
 
-    else if (currentInstrument === "xylophone") {
+    } else if (currentInstrument === "xylophone") {
+
         currentInstrument = "musicbox";
-    }
 
-    else {
+    } else {
+
         currentInstrument = "piano";
     }
 
@@ -482,6 +507,7 @@ function toggleInstrument() {
 let metronomeRunning = false;
 let metronomeTimer = null;
 
+
 function toggleMetronome() {
 
     const btn = document.getElementById("metroBtn");
@@ -489,6 +515,7 @@ function toggleMetronome() {
     if (metronomeRunning) {
 
         metronomeRunning = false;
+
         clearTimeout(metronomeTimer);
 
         btn.textContent = "メトロノーム: 停止";
