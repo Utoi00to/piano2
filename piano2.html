@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -138,9 +139,9 @@ button:hover { background: #666677; }
 <h1>MY PIANO</h1>
 
 <div class="top">
-    <div id="info">キーボードを押して演奏しよう！</div>
+    <div id="info">鍵盤を押して演奏しよう！</div>
 
-    <button id="instBtn" onclick="toggleInstrument()">
+    <button id="instBtn" type="button">
         音色: ピアノ
     </button>
 </div>
@@ -148,7 +149,8 @@ button:hover { background: #666677; }
 <div class="metro">
     BPM:
     <input type="number" id="tempo" value="120" min="1">
-    <button id="metroBtn" onclick="toggleMetronome()">
+
+    <button id="metroBtn" type="button">
         メトロノーム: 停止
     </button>
 </div>
@@ -286,7 +288,6 @@ const notes = {
     BracketRight: ["ド#", 554.37]
 };
 
-
 // 楽器設定
 let currentInstrument = "piano";
 
@@ -296,40 +297,59 @@ const instrumentNames = {
     musicbox: "オルゴール"
 };
 
-
 // 音声エンジン
-const audioContext = new (
-    window.AudioContext || window.webkitAudioContext
-)();
+let audioContext = null;
 
+// 音声エンジンを起動
+async function ensureAudioReady() {
 
-// 音を鳴らす
-function playSound(freq, instrument = currentInstrument) {
+    const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
 
-    if (audioContext.state === "suspended") {
-        audioContext.resume();
+    if (!AudioContextClass) {
+        document.getElementById("info").textContent =
+            "このブラウザは音声再生に対応していません。";
+        return false;
     }
 
+    if (!audioContext || audioContext.state === "closed") {
+        audioContext = new AudioContextClass();
+    }
+
+    if (audioContext.state !== "running") {
+        await audioContext.resume();
+    }
+
+    return audioContext.state === "running";
+}
+
+// 音を鳴らす
+async function playSound(freq, instrument = currentInstrument) {
+
+    const ready = await ensureAudioReady();
+
+    if (!ready) return;
+
     const now = audioContext.currentTime;
+
+    const duration =
+        instrument === "metro" ? 0.15 : 0.65;
+
     const master = audioContext.createGain();
 
+    master.gain.setValueAtTime(0.8, now);
     master.connect(audioContext.destination);
-
-    master.gain.setValueAtTime(0.3, now);
-
-    let duration = 0.5;
-
-    if (instrument === "metro") duration = 0.15;
 
     function addOscillator(frequency, volume) {
 
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
 
-        osc.type = "sine";
-        osc.frequency.value = frequency;
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(frequency, now);
 
         gain.gain.setValueAtTime(volume, now);
+
         gain.gain.exponentialRampToValueAtTime(
             0.001,
             now + duration
@@ -343,27 +363,32 @@ function playSound(freq, instrument = currentInstrument) {
     }
 
     if (instrument === "metro") {
-        addOscillator(1000, 0.3);
+
+        addOscillator(1000, 0.5);
+
+    } else if (instrument === "piano") {
+
+        addOscillator(freq, 0.45);
+        addOscillator(freq * 2, 0.12);
+        addOscillator(freq * 3, 0.04);
+
+    } else if (instrument === "xylophone") {
+
+        addOscillator(freq, 0.4);
+        addOscillator(freq * 3.2, 0.15);
+
+    } else {
+
+        addOscillator(freq, 0.4);
+        addOscillator(freq * 4, 0.12);
+        addOscillator(freq * 6, 0.06);
+
     }
 
-    else if (instrument === "piano") {
-        addOscillator(freq, 0.2);
-        addOscillator(freq * 2, 0.06);
-        addOscillator(freq * 3, 0.02);
-    }
-
-    else if (instrument === "xylophone") {
-        addOscillator(freq, 0.2);
-        addOscillator(freq * 3.2, 0.1);
-    }
-
-    else {
-        addOscillator(freq, 0.2);
-        addOscillator(freq * 4, 0.08);
-        addOscillator(freq * 6, 0.04);
-    }
+    setTimeout(() => {
+        master.disconnect();
+    }, duration * 1000 + 100);
 }
-
 
 // 鍵盤を光らせる
 function flashKey(code) {
@@ -381,7 +406,6 @@ function flashKey(code) {
     }, 150);
 }
 
-
 // 演奏処理
 function pressKey(code) {
 
@@ -397,7 +421,6 @@ function pressKey(code) {
     flashKey(code);
 }
 
-
 // キーボード操作
 document.addEventListener("keydown", function(event) {
 
@@ -407,7 +430,10 @@ document.addEventListener("keydown", function(event) {
 
         event.preventDefault();
 
-        if (document.activeElement.tagName === "INPUT") {
+        if (
+            document.activeElement &&
+            document.activeElement.tagName === "INPUT"
+        ) {
             document.activeElement.blur();
         }
 
@@ -416,65 +442,44 @@ document.addEventListener("keydown", function(event) {
 
 });
 
-
 // マウス操作
 document.querySelectorAll(".white-key, .black-key")
 .forEach(element => {
 
-    element.addEventListener("click", function() {
+    element.addEventListener("pointerdown", function() {
+
         pressKey(this.dataset.code);
+
     });
 
 });
 
-
 // 音色切り替え
-function toggleInstrument() {
+document.getElementById("instBtn")
+.addEventListener("click", function() {
 
     if (currentInstrument === "piano") {
+
         currentInstrument = "xylophone";
-    }
 
-    else if (currentInstrument === "xylophone") {
+    } else if (currentInstrument === "xylophone") {
+
         currentInstrument = "musicbox";
-    }
 
-    else {
+    } else {
+
         currentInstrument = "piano";
+
     }
 
-    document.getElementById("instBtn").textContent =
+    this.textContent =
         "音色: " + instrumentNames[currentInstrument];
-}
 
+});
 
 // メトロノーム
 let metronomeRunning = false;
 let metronomeTimer = null;
-
-function toggleMetronome() {
-
-    const btn = document.getElementById("metroBtn");
-
-    if (metronomeRunning) {
-
-        metronomeRunning = false;
-        clearTimeout(metronomeTimer);
-
-        btn.textContent = "メトロノーム: 停止";
-        btn.style.color = "#ff4444";
-
-    } else {
-
-        metronomeRunning = true;
-
-        btn.textContent = "メトロノーム: 再生中";
-        btn.style.color = "#44ff44";
-
-        metronomeLoop();
-    }
-}
-
 
 function metronomeLoop() {
 
@@ -495,6 +500,29 @@ function metronomeLoop() {
         60000 / bpm
     );
 }
+
+document.getElementById("metroBtn")
+.addEventListener("click", function() {
+
+    metronomeRunning = !metronomeRunning;
+
+    if (metronomeRunning) {
+
+        this.textContent = "メトロノーム: 再生中";
+        this.style.color = "#44ff44";
+
+        metronomeLoop();
+
+    } else {
+
+        clearTimeout(metronomeTimer);
+
+        this.textContent = "メトロノーム: 停止";
+        this.style.color = "#ff4444";
+
+    }
+
+});
 
 </script>
 
