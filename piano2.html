@@ -7,7 +7,9 @@
 <title>MY PIANO</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
@@ -29,9 +31,13 @@ h1 {
     max-width: 1000px;
     margin: 15px auto;
     padding: 0 20px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-#info { font-size: 14px; }
+#info {
+    font-size: 14px;
+}
 
 button {
     background: #444455;
@@ -44,9 +50,17 @@ button {
     font-size: 13px;
 }
 
-button:hover { background: #666677; }
+button:hover {
+    background: #666677;
+}
 
-.metro { margin: 20px; }
+#soundBtn {
+    color: #66ddff;
+}
+
+.metro {
+    margin: 20px;
+}
 
 .metro input {
     width: 65px;
@@ -57,7 +71,9 @@ button:hover { background: #666677; }
     border: none;
 }
 
-#metroBtn { margin-left: 10px; }
+#metroBtn {
+    margin-left: 10px;
+}
 
 .keyboard {
     position: relative;
@@ -122,8 +138,13 @@ button:hover { background: #666677; }
     font-weight: bold;
 }
 
-.white-key.active { background: #ffee66; }
-.black-key.active { background: #555555; }
+.white-key.active {
+    background: #ffee66;
+}
+
+.black-key.active {
+    background: #555555;
+}
 
 @media (max-width: 950px) {
     .keyboard {
@@ -139,9 +160,13 @@ button:hover { background: #666677; }
 <h1>MY PIANO</h1>
 
 <div class="top">
-    <div id="info">鍵盤を押して演奏しよう！</div>
+    <div id="info">キーボードを押して演奏しよう！</div>
 
-    <button id="instBtn" type="button">
+    <button id="soundBtn" onclick="enableSound()">
+        音声を有効にする
+    </button>
+
+    <button id="instBtn" onclick="toggleInstrument()">
         音色: ピアノ
     </button>
 </div>
@@ -150,7 +175,7 @@ button:hover { background: #666677; }
     BPM:
     <input type="number" id="tempo" value="120" min="1">
 
-    <button id="metroBtn" type="button">
+    <button id="metroBtn" onclick="toggleMetronome()">
         メトロノーム: 停止
     </button>
 </div>
@@ -158,6 +183,7 @@ button:hover { background: #666677; }
 <div class="keyboard" id="keyboard">
 
     <!-- 白鍵 -->
+
     <div class="white-key" data-code="KeyA">
         <div class="key-label">A</div>
         <div class="note-label">ソ</div>
@@ -218,7 +244,9 @@ button:hover { background: #666677; }
         <div class="note-label">レ</div>
     </div>
 
+
     <!-- 黒鍵 -->
+
     <div class="black-key" data-code="KeyQ" style="left:52px">
         <div class="key-label">Q</div>
         <div class="note-label">ソ#</div>
@@ -261,9 +289,11 @@ button:hover { background: #666677; }
 
 </div>
 
+
 <script>
 
 // 音階と周波数
+
 const notes = {
     KeyA: ["ソ", 196.00],
     KeyS: ["ラ", 220.00],
@@ -288,7 +318,9 @@ const notes = {
     BracketRight: ["ド#", 554.37]
 };
 
+
 // 楽器設定
+
 let currentInstrument = "piano";
 
 const instrumentNames = {
@@ -297,19 +329,22 @@ const instrumentNames = {
     musicbox: "オルゴール"
 };
 
+
 // 音声エンジン
+
 let audioContext = null;
 
-// 音声エンジンを起動
-async function ensureAudioReady() {
+
+// 音声を起動する
+
+function startAudio() {
 
     const AudioContextClass =
         window.AudioContext || window.webkitAudioContext;
 
     if (!AudioContextClass) {
-        document.getElementById("info").textContent =
-            "このブラウザは音声再生に対応していません。";
-        return false;
+        alert("このブラウザは音声再生に対応していません。");
+        return Promise.reject("AudioContext unavailable");
     }
 
     if (!audioContext || audioContext.state === "closed") {
@@ -317,80 +352,126 @@ async function ensureAudioReady() {
     }
 
     if (audioContext.state !== "running") {
-        await audioContext.resume();
+        return audioContext.resume();
     }
 
-    return audioContext.state === "running";
+    return Promise.resolve();
 }
+
+
+// 音声有効化ボタン
+
+async function enableSound() {
+
+    try {
+
+        await startAudio();
+
+        document.getElementById("soundBtn").textContent =
+            "音声: 有効";
+
+        document.getElementById("soundBtn").style.color =
+            "#44ff88";
+
+        document.getElementById("info").textContent =
+            "音声が有効になりました！";
+
+    } catch (error) {
+
+        document.getElementById("info").textContent =
+            "音声を起動できませんでした。";
+
+        console.error("音声起動エラー:", error);
+    }
+}
+
 
 // 音を鳴らす
-async function playSound(freq, instrument = currentInstrument) {
 
-    const ready = await ensureAudioReady();
+function playSound(freq, instrument = currentInstrument) {
 
-    if (!ready) return;
+    startAudio().then(() => {
 
-    const now = audioContext.currentTime;
+        if (!audioContext || audioContext.state !== "running") {
+            return;
+        }
 
-    const duration =
-        instrument === "metro" ? 0.15 : 0.65;
+        const now = audioContext.currentTime;
 
-    const master = audioContext.createGain();
+        const master = audioContext.createGain();
 
-    master.gain.setValueAtTime(0.8, now);
-    master.connect(audioContext.destination);
+        master.connect(audioContext.destination);
 
-    function addOscillator(frequency, volume) {
+        master.gain.setValueAtTime(0.5, now);
 
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
+        let duration = 0.5;
 
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(frequency, now);
+        if (instrument === "metro") {
+            duration = 0.15;
+        }
 
-        gain.gain.setValueAtTime(volume, now);
+        function addOscillator(frequency, volume) {
 
-        gain.gain.exponentialRampToValueAtTime(
-            0.001,
-            now + duration
-        );
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
 
-        osc.connect(gain);
-        gain.connect(master);
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(frequency, now);
 
-        osc.start(now);
-        osc.stop(now + duration);
-    }
+            gain.gain.setValueAtTime(volume, now);
 
-    if (instrument === "metro") {
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                now + duration
+            );
 
-        addOscillator(1000, 0.5);
+            osc.connect(gain);
+            gain.connect(master);
 
-    } else if (instrument === "piano") {
+            osc.start(now);
+            osc.stop(now + duration);
+        }
 
-        addOscillator(freq, 0.45);
-        addOscillator(freq * 2, 0.12);
-        addOscillator(freq * 3, 0.04);
 
-    } else if (instrument === "xylophone") {
+        if (instrument === "metro") {
 
-        addOscillator(freq, 0.4);
-        addOscillator(freq * 3.2, 0.15);
+            addOscillator(1000, 0.3);
 
-    } else {
+        }
 
-        addOscillator(freq, 0.4);
-        addOscillator(freq * 4, 0.12);
-        addOscillator(freq * 6, 0.06);
+        else if (instrument === "piano") {
 
-    }
+            addOscillator(freq, 0.3);
+            addOscillator(freq * 2, 0.08);
+            addOscillator(freq * 3, 0.03);
 
-    setTimeout(() => {
-        master.disconnect();
-    }, duration * 1000 + 100);
+        }
+
+        else if (instrument === "xylophone") {
+
+            addOscillator(freq, 0.3);
+            addOscillator(freq * 3.2, 0.12);
+
+        }
+
+        else {
+
+            addOscillator(freq, 0.3);
+            addOscillator(freq * 4, 0.1);
+            addOscillator(freq * 6, 0.05);
+
+        }
+
+    }).catch(error => {
+
+        console.error("音声再生エラー:", error);
+
+    });
 }
 
+
 // 鍵盤を光らせる
+
 function flashKey(code) {
 
     const element = document.querySelector(
@@ -406,7 +487,9 @@ function flashKey(code) {
     }, 150);
 }
 
+
 // 演奏処理
+
 function pressKey(code) {
 
     if (!notes[code]) return;
@@ -421,7 +504,9 @@ function pressKey(code) {
     flashKey(code);
 }
 
+
 // キーボード操作
+
 document.addEventListener("keydown", function(event) {
 
     if (event.repeat) return;
@@ -430,10 +515,7 @@ document.addEventListener("keydown", function(event) {
 
         event.preventDefault();
 
-        if (
-            document.activeElement &&
-            document.activeElement.tagName === "INPUT"
-        ) {
+        if (document.activeElement.tagName === "INPUT") {
             document.activeElement.blur();
         }
 
@@ -442,11 +524,13 @@ document.addEventListener("keydown", function(event) {
 
 });
 
+
 // マウス操作
+
 document.querySelectorAll(".white-key, .black-key")
 .forEach(element => {
 
-    element.addEventListener("pointerdown", function() {
+    element.addEventListener("click", function() {
 
         pressKey(this.dataset.code);
 
@@ -454,32 +538,64 @@ document.querySelectorAll(".white-key, .black-key")
 
 });
 
+
 // 音色切り替え
-document.getElementById("instBtn")
-.addEventListener("click", function() {
+
+function toggleInstrument() {
 
     if (currentInstrument === "piano") {
 
         currentInstrument = "xylophone";
 
-    } else if (currentInstrument === "xylophone") {
+    }
+
+    else if (currentInstrument === "xylophone") {
 
         currentInstrument = "musicbox";
 
-    } else {
+    }
+
+    else {
 
         currentInstrument = "piano";
 
     }
 
-    this.textContent =
+    document.getElementById("instBtn").textContent =
         "音色: " + instrumentNames[currentInstrument];
+}
 
-});
 
 // メトロノーム
+
 let metronomeRunning = false;
 let metronomeTimer = null;
+
+
+function toggleMetronome() {
+
+    const btn = document.getElementById("metroBtn");
+
+    if (metronomeRunning) {
+
+        metronomeRunning = false;
+
+        clearTimeout(metronomeTimer);
+
+        btn.textContent = "メトロノーム: 停止";
+        btn.style.color = "#ff4444";
+
+    } else {
+
+        metronomeRunning = true;
+
+        btn.textContent = "メトロノーム: 再生中";
+        btn.style.color = "#44ff44";
+
+        metronomeLoop();
+    }
+}
+
 
 function metronomeLoop() {
 
@@ -500,29 +616,6 @@ function metronomeLoop() {
         60000 / bpm
     );
 }
-
-document.getElementById("metroBtn")
-.addEventListener("click", function() {
-
-    metronomeRunning = !metronomeRunning;
-
-    if (metronomeRunning) {
-
-        this.textContent = "メトロノーム: 再生中";
-        this.style.color = "#44ff44";
-
-        metronomeLoop();
-
-    } else {
-
-        clearTimeout(metronomeTimer);
-
-        this.textContent = "メトロノーム: 停止";
-        this.style.color = "#ff4444";
-
-    }
-
-});
 
 </script>
 
